@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:padding="50dp"
+    android:padding="25dp"
     android:gravity="center">
 
     <ImageView
@@ -13,7 +13,6 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1" >
-
     </ImageView>
 
 
@@ -23,5 +22,13 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="Pick an Image"/>
+
+    <Button
+        android:id="@+id/saveButton"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:text="Save Image" />
 
 </LinearLayout>

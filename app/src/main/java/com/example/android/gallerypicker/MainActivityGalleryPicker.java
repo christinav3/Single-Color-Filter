@@ -1,12 +1,16 @@
 package com.example.android.gallerypicker;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -20,10 +24,12 @@ public class MainActivityGalleryPicker extends AppCompatActivity {
 
     private int requestCode = 1;
     private ImageView image;
-    //private TextView url;
-    //String imgDecodableString;
+    public static final int MY_PERMISSIONS_REQUEST_EXTERNAL = 1;
+
     Bitmap bitmap;
     Bitmap mbitmap;
+    String newImage;
+    Button saveB;
 
 
     @Override
@@ -33,22 +39,75 @@ public class MainActivityGalleryPicker extends AppCompatActivity {
 
 
         Button button = (Button) findViewById(R.id.button);
+        saveB =  (Button) findViewById(R.id.saveButton);
+
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(intent, requestCode);
             }
-
         });
+
+        saveB.setAlpha(0.4f);
+        saveB.setClickable(false);
+
+        //save to new image to gallery
+                saveB.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        //check for permission
+                        // Here, thisActivity is the current activity
+                        if (ContextCompat.checkSelfPermission(MainActivityGalleryPicker.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+
+                            // Permission is not granted
+                            if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivityGalleryPicker.this,
+                                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                                // Show an explanation to the user *asynchronously* -- don't block
+                            } else {
+                                // No explanation needed; request the permission
+                                ActivityCompat.requestPermissions(MainActivityGalleryPicker.this,
+                                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_EXTERNAL);
+
+                            }
+                        } else {
+                            // Permission has already been granted
+                        }
+
+
+                        //permission result
+
+                    }
+                });
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_EXTERNAL: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted, yay! Do the
+                    newImage = MediaStore.Images.Media.insertImage(getContentResolver(), mbitmap, "filter_pic", "image with filter");
+
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+            }
+
+        }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == this.requestCode) {
             Uri selectedImage = data.getData();
-            //turn into bitmap
 
+            //turn into bitmap
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
                 //creating a mutable bitmap
@@ -63,8 +122,10 @@ public class MainActivityGalleryPicker extends AppCompatActivity {
 
             image.setOnTouchListener(handleTouch);
 
-            //display bitmap?
+            //display bitmap
             image.setImageBitmap(mbitmap);
+
+
         }
     }
 
@@ -98,6 +159,8 @@ public class MainActivityGalleryPicker extends AppCompatActivity {
                     m.mapPoints(pts);
                     x = (int) pts[0];
                     y = (int) pts[1];
+                    saveB.setAlpha(1.0f);
+                    saveB.setClickable(true);
                     //filterColor = bitmap.getPixel(x,y);
                     /*Log.i("TAG", " get x and y: ( " + x + " , " + y + ") ");
                     Log.i("TAG", "red: " + red + " blue: " + blue + ", green: " + green + " ");*/
