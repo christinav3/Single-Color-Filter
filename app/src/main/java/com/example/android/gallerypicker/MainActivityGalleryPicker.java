@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -57,11 +58,10 @@ public class MainActivityGalleryPicker extends AppCompatActivity {
             }
 
             image = (ImageView) findViewById(R.id.image);
-            image.setImageURI(selectedImage);
+            //image.setImageURI(selectedImage);
 
 
             image.setOnTouchListener(handleTouch);
-            image.setVisibility(View.GONE);
 
             //display bitmap?
             image.setImageBitmap(mbitmap);
@@ -95,20 +95,30 @@ public class MainActivityGalleryPicker extends AppCompatActivity {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     pts  = new float[]{event.getX(), event.getY()};
+                    m.mapPoints(pts);
                     x = (int) pts[0];
                     y = (int) pts[1];
-                    m.mapPoints(pts);
                     //filterColor = bitmap.getPixel(x,y);
                     /*Log.i("TAG", " get x and y: ( " + x + " , " + y + ") ");
                     Log.i("TAG", "red: " + red + " blue: " + blue + ", green: " + green + " ");*/
                     break;
+
+                default:
+                    return false;
+
             }
 
+            /*Log.i("TAG", " get x and y: ( " + x + " , " + y + ") " + bitmap.getWidth() + "x" + bitmap.getHeight());
+            if (x != 983455)
+                return false;*/
+
             if (x < 0 || x >= bitmap.getWidth() || y < 0 || y >= bitmap.getHeight()) {
+                Log.i("TAG", " in if ");
                 return false;
             }
 
-                int filterColor = mbitmap.getPixel(x, y);
+
+                int filterColor = bitmap.getPixel(x, y);
                 int red = Color.red(filterColor);
                 int green = Color.green(filterColor);
                 int blue = Color.blue(filterColor);
@@ -123,45 +133,54 @@ public class MainActivityGalleryPicker extends AppCompatActivity {
                 int maxBlue;
 
                 //RED
-                if (red == 0 || red >= 235) {
-                    minRed = red;
-                    maxRed = red;
-                } else if (red >= 235) {
-                    minRed = 235;
-                    maxRed = 255;
-                } else {
+                if (red < tolerance) {
+                    minRed = 0;
+                }
+                else {
                     minRed = red - tolerance;
+                }
+
+                if(red >= (255 - tolerance)){
+                    maxRed = 255;
+                }
+                else {
                     maxRed = red + tolerance;
                 }
                 //GREEN
-                if (green == 0 || green >= 235) {
-                    minGreen = green;
-                    maxGreen = green;
-                } else if (green >= 235) {
-                    minGreen = 235;
-                    maxGreen = 255;
-                } else {
+                if (green < tolerance) {
+                    minGreen = 0;
+                }
+                else {
                     minGreen = green - tolerance;
+                }
+
+                if(green >= 255 - tolerance) {
+                    maxGreen = 255;
+                }
+                else {
                     maxGreen = green + tolerance;
                 }
                 //BLUE
-                if (blue == 0) {
-                    minBlue = blue;
-                    maxBlue = blue + tolerance;
-                } else if (blue >= 235) {
-                    minBlue = 235;
-                    maxBlue = 255;
-                } else {
+                if (blue < tolerance) {
+                    minBlue = 0;
+                }
+                else {
                     minBlue = blue - tolerance;
+                }
+
+                if(blue >= 255 - tolerance) {
+                    maxBlue = 255;
+                }
+                else {
                     maxBlue = blue + tolerance;
                 }
 
 
                 //loops to run through bitmap
-                for (int i = 0; i < mbitmap.getWidth(); i++) {
-                    for (int j = 0; j < mbitmap.getHeight(); j++) {
+                for (int i = 0; i < bitmap.getWidth(); i++) {
+                    for (int j = 0; j < bitmap.getHeight(); j++) {
 
-                        int currColor = mbitmap.getPixel(i, j);
+                        int currColor = bitmap.getPixel(i, j);
                         int currRed = Color.red(currColor);
                         int currGreen = Color.green(currColor);
                         int currBlue = Color.blue(currColor);
@@ -171,13 +190,12 @@ public class MainActivityGalleryPicker extends AppCompatActivity {
 
                         //if current pixel is within range of color to filter, leave as is
                         if ((currRed <= maxRed && currRed >= minRed) && (currGreen <= maxGreen && currGreen >= minGreen) && (currBlue <= maxBlue && currBlue >= minBlue)) {
-                           // break;
+                            //continue;
                             mbitmap.setPixel(i, j, currColor);
                         }
                         //else apply grayscale
                         else {
                             intGray = (currRed + currGreen + currBlue) / 3;
-                            //intGray = (int) gray;
                             intGray = Color.rgb(intGray, intGray, intGray);
                             //Log.i("TAG", " intGray is : ( " + intGray + "");
                             mbitmap.setPixel(i, j, intGray);
@@ -185,7 +203,7 @@ public class MainActivityGalleryPicker extends AppCompatActivity {
                     }
                 }
 
-
+            image.invalidate();
             return true;
         }
 
