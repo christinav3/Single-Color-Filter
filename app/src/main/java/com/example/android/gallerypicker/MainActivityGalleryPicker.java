@@ -17,8 +17,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-
 import java.io.IOException;
+
+
+
+
 
 public class MainActivityGalleryPicker extends AppCompatActivity {
 
@@ -79,6 +82,7 @@ public class MainActivityGalleryPicker extends AppCompatActivity {
 
                     }
                 });
+
     }
 
 
@@ -105,6 +109,11 @@ public class MainActivityGalleryPicker extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == this.requestCode) {
+
+            if(data == null) {
+                return;
+            }
+
             Uri selectedImage = data.getData();
 
             //turn into bitmap

@@ -6,7 +6,15 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:padding="25dp"
+    android:theme="@style/AppTheme"
     android:gravity="center">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:titleTextColor="@color/ToolTextColor"
+        />
 
     <ImageView
         android:id="@id/image"
@@ -21,6 +29,7 @@
         android:id="@+id/button"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:theme="@style/MyButton"
         android:text="Pick an Image"/>
 
     <Button
@@ -29,6 +38,7 @@
         android:layout_width="wrap_content"
         android:minHeight="0dp"
         android:minWidth="0dp"
+        android:theme="@style/MyButton"
         android:text="Save Image" />
 
 </LinearLayout>
